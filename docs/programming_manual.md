@@ -6,18 +6,18 @@
 * 以下の例は，ユーザーからのキー入力に対して，何も加工せずに他のアプリケーションに送り出します
   ```lua
   function main()
-    while ltGetInputArraySize() > 0 do
-      vkcode, scancode, state, time = ltGetInputArrayItem(0)
+    if ltGetInputArraySize() > 0 then
+      vkcode, scancode, state, time = ltGetInputArrayItem(1)
       ltSendVkCode(vkcode, state)
-      ltEraseInputArrayItem(0)
+      ltEraseInputArrayItem(1)
     end
   end
   ```
 * 以下の例は，キーボードの A が押されると B を，B が押されると「漢」という文字を入力します．
   ```lua
   function main()
-    while ltGetInputArraySize() > 0 do
-      vkcode, scancode, state, time = ltGetInputArrayItem(0)
+    if ltGetInputArraySize() > 0 then
+      vkcode, scancode, state, time = ltGetInputArrayItem(1)
       if vkcode == string.byte("A") then
         ltSendVkCode(string.byte("B"), state)
       elseif vkcode == string.byte("B") then
@@ -25,7 +25,7 @@
       else
         ltSendVkCode(vkcode, state)
       end
-      ltEraseInputArrayItem(0)
+      ltEraseInputArrayItem(1)
     end
   end
   ```
@@ -114,7 +114,7 @@ vkCode, scanCode, state, time = ltGetInputArrayItem(position)
 <dl>
 <dt>position</dt>
 <dd>読み出すキー入力情報の，InputArray 内での位置を指定します．
-指定できる値は 0 以上 ltGetInputArraySize() - 1 以下の整数です．
+指定できる値は 1 以上 ltGetInputArraySize() 以下の整数です．
 新しいキー入力情報は InputArray の後ろに追加されていくので，番号が小さいほど古く，番号が大きいほど新しい入力情報になります．</dd>
 </dl>
 
@@ -144,7 +144,7 @@ ltEraseInputArrayItem(position)
 <dl>
 <dt>position</dt>
 <dd>消去するキー入力情報の，InputArray 内での位置を指定します．
-指定できる値は 0 以上 ltGetInputArraySize() - 1 以下の整数です．</dd>
+指定できる値は 1 以上 ltGetInputArraySize() 以下の整数です．</dd>
 </dl>
 
 #### 返り値
