@@ -1,0 +1,2 @@
+﻿
+dofile("examples/thru.lua")
