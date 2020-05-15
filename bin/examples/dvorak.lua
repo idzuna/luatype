@@ -69,13 +69,16 @@ end
 function processModifierKey(scancode, state)
   if     scancode == SC_LSHIFT    then LSHIFT   = not state
   elseif scancode == SC_RSHIFT    then RSHIFT   = not state
-  elseif scancode == SC_LCONTROL  then LCONTROL = not state ltSendScanCode(scancode, state)
-  elseif scancode == SC_RCONTROL  then RCONTROL = not state ltSendScanCode(scancode, state)
-  elseif scancode == SC_LWIN      then LWIN     = not state ltSendScanCode(scancode, state)
-  elseif scancode == SC_RWIN      then RWIN     = not state ltSendScanCode(scancode, state)
-  elseif scancode == SC_LALT      then LALT     = not state ltSendScanCode(scancode, state)
-  elseif scancode == SC_RALT      then RALT     = not state ltSendScanCode(scancode, state)
+  elseif scancode == SC_LCONTROL  then LCONTROL = not state
+  elseif scancode == SC_RCONTROL  then RCONTROL = not state
+  elseif scancode == SC_LWIN      then LWIN     = not state
+  elseif scancode == SC_RWIN      then RWIN     = not state
+  elseif scancode == SC_LALT      then LALT     = not state
+  elseif scancode == SC_RALT      then RALT     = not state
+  else
+    return
   end
+  ltSendScanCode(scancode, state)
 end
 
 function isModifierKeyPressed()
@@ -95,7 +98,11 @@ function processCharacterKey(scancode, state)
     return
   end
   if LSHIFT or RSHIFT then
+    if LSHIFT then ltSendScanCode(SC_LSHIFT, STATE_UP) end
+    if RSHIFT then ltSendScanCode(SC_RSHIFT, STATE_UP) end
     translateStroke(scancode, MAP_FROM, MAP_SHIFT)
+    if LSHIFT then ltSendScanCode(SC_LSHIFT, STATE_DOWN) end
+    if RSHIFT then ltSendScanCode(SC_RSHIFT, STATE_DOWN) end
   else
     translateStroke(scancode, MAP_FROM, MAP_SINGLE)
   end
