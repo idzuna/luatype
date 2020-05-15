@@ -5,6 +5,7 @@
 #include <vector>
 #include <string>
 #include <Windows.h>
+#include <Psapi.h>
 #include <imm.h>
 #include "lua/lua.hpp"
 #include "lockfree_queue.hpp"
@@ -181,6 +182,41 @@ static int ltSetImeEnabled(lua_State* L)
   return 0;
 }
 
+//-------------------------------------------
+//  Window
+//-------------------------------------------
+
+static int ltGetForegroundWindowTitle(lua_State* L)
+{
+  wchar_t wstr[1024] = {};
+  char str[4096] = {};
+  GetWindowTextW(GetForegroundWindow(), wstr, sizeof(wstr) / sizeof(wstr[0]));
+  WideCharToMultiByte(CP_UTF8, 0, wstr, -1, str, sizeof(str), NULL, NULL);
+  lua_pushstring(L, str);
+  return 1;
+}
+
+static int ltGetForegroundModuleName(lua_State* L)
+{
+  DWORD pid = 0;
+  GetWindowThreadProcessId(GetForegroundWindow(), &pid);
+
+  HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pid);
+
+  HMODULE hModule = 0;
+  DWORD dummy;
+  EnumProcessModules(hProcess, &hModule, sizeof(HMODULE), &dummy);
+
+  wchar_t wstr[1024] = {};
+  GetModuleFileNameExW(hProcess, hModule, wstr, sizeof(wstr) / sizeof(wstr[0]));
+  CloseHandle(hProcess);
+
+  char str[4096] = {};
+  WideCharToMultiByte(CP_UTF8, 0, wstr, -1, str, sizeof(str), NULL, NULL);
+  lua_pushstring(L, str);
+  return 1;
+}
+
 static void LuaThreadMain(const std::string& filename)
 {
   try {
@@ -198,6 +234,8 @@ static void LuaThreadMain(const std::string& filename)
     lua_register(L, "ltSendUnicodeCharacter", ltSendUnicodeCharacter);
     lua_register(L, "ltGetImeEnabled", ltGetImeEnabled);
     lua_register(L, "ltSetImeEnabled", ltSetImeEnabled);
+    lua_register(L, "ltGetForegroundWindowTitle", ltGetForegroundWindowTitle);
+    lua_register(L, "ltGetForegroundModuleName", ltGetForegroundModuleName);
     if (luaL_dofile(L, filename.c_str())) {
       throw "";
     }
