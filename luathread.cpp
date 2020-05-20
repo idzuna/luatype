@@ -170,15 +170,20 @@ static int ltSendUnicodeCharacter(lua_State* L)
 
 static int ltGetImeEnabled(lua_State* L)
 {
+  GUITHREADINFO gui;
+  gui.cbSize = sizeof(gui);
+  GetGUIThreadInfo(NULL, &gui);
   lua_pushboolean(L, static_cast<BOOL>(
-    SendMessage(ImmGetDefaultIMEWnd(GetForegroundWindow()), WM_IME_CONTROL, IMC_GETOPENSTATUS, 0)));
+    SendMessage(ImmGetDefaultIMEWnd(gui.hwndFocus), WM_IME_CONTROL, IMC_GETOPENSTATUS, 0)));
   return 1;
 }
 
 static int ltSetImeEnabled(lua_State* L)
 {
-  const BOOL enabled = lua_toboolean(L, 1);
-  SendMessage(ImmGetDefaultIMEWnd(GetForegroundWindow()), WM_IME_CONTROL, IMC_SETOPENSTATUS, enabled);
+  GUITHREADINFO gui;
+  gui.cbSize = sizeof(gui);
+  GetGUIThreadInfo(NULL, &gui);
+  SendMessage(ImmGetDefaultIMEWnd(gui.hwndFocus), WM_IME_CONTROL, IMC_SETOPENSTATUS, lua_toboolean(L, 1));
   return 0;
 }
 
